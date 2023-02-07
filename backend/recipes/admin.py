@@ -7,7 +7,7 @@ from .models import (
     IngredientAmount,
     Favorite,
     ShoppingList,
-    )
+)
 
 
 class RecipeAdmin(admin.ModelAdmin):
@@ -19,6 +19,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'image',
         'ingredients_custom',
         'tags_custom',
+        'favorites_count',
         'cooking_time',
         'pub_date',
     )
@@ -34,6 +35,11 @@ class RecipeAdmin(admin.ModelAdmin):
     def tags_custom(self, obj):
         return ", ".join([str(p) for p in obj.tags.all()])
     tags_custom.short_description = 'Теги'
+
+    # количество добавлений рецепта в избранное
+    def favorites_count(self, obj):
+        return Favorite.objects.filter(recipe=obj).count()
+    favorites_count.short_description = 'Количество добавлений в избранное'
 
 
 # Ингридиенты
@@ -90,6 +96,7 @@ class FavoriteAdmin(admin.ModelAdmin):
     empty_value_display = settings.EMPTY_VALUE_DISPLAY
     ordering = ('-id',)
     list_display_links = ('id', 'user', 'recipe')
+
 
 # Списко покупок
 class ShoppingListAdmin(admin.ModelAdmin):
