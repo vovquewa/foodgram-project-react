@@ -21,7 +21,6 @@
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from users.serializers import UserSerializer
 from users.views import CustomUserViewSet
 from recipes.views import TagViewSet, RecipeViewSet, IngredientViewSet
 

@@ -21,6 +21,8 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework.validators import UniqueTogetherValidator
 # Paginator
 from rest_framework.pagination import PageNumberPagination as Paginator
+# OrderedDict
+from collections import OrderedDict
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -139,81 +141,136 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
         id - id ингредиента
         amount - количество ингредиента
     """
-
-    recipe = serializers.PrimaryKeyRelatedField(
-        read_only=True,
-    )
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all(),
-        source='ingredient'
-    )
+    # recipe = serializers.PrimaryKeyRelatedField(read_only=True)
     amount = serializers.IntegerField(write_only=True, min_value=1)
+    id = serializers.IntegerField(write_only=True)
 
     class Meta:
-        fields = ('recipe', 'id', 'amount')
         model = IngredientAmount
+        fields = ('id', 'amount')
 
 
-def recipe_ingredient_create(ingredients_data, models, recipe):
-    bulk_create_data = (
-        models(
-            recipe=recipe,
-            ingredient=ingredient_data['ingredient'],
-            amount=ingredient_data['amount'])
-        for ingredient_data in ingredients_data
+class IngredientRecipeGetSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
     )
-    models.objects.bulk_create(bulk_create_data)
+
+    class Meta:
+        model = IngredientAmount
+        fields = ('id', 'name', 'measurement_unit', 'amount')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=IngredientAmount.objects.all(),
+                fields=['ingredient', 'recipe']
+            )
+        ]
 
 
 class RecipePostSerializer(serializers.ModelSerializer):
     """
+    Сериализатор для модели Recipe и методов отличных от GET
 
-    Сериализатор для модели Recipe для методов отличных от GET
-
-    Поля:
-        ingredients - ингредиенты рецепта
-            поля:
-                id - id ингредиента
-                amount - количество ингредиента
-        tags - теги рецепта
-            поля:
-                id - id тега
+    # Поля:
+    #     ingredients - ингредиенты рецепта
+    #         поля:
+    #             id - id ингредиента
+    #             amount - количество ингредиента
+    #     tags - теги рецепта
+    #         поля:
+    #             id - id тега
         image - изображение рецепта закодированное в base64
         name - название рецепта
         text - описание рецепта
         cooking_time - время приготовления рецепта
 
+    порядок полей при выводе:
+        'id',
+        'tags',
+        'author',
+        'ingredients',
+        'is_favorited',
+        'is_in_shopping_cart',
+        'image',
+        'name',
+        'text',
+        'cooking_time'
+
+    порядок полей определяется в методе get_fields
+
+
     Все поля обязательны для заполнения
-
     """
-
-    ingredients = IngredientAmountSerializer(
-        many=True,
-        write_only=True,
-        validators=[UniqueTogetherValidator(
-            queryset=IngredientAmount.objects.all(),
-            fields=('recipe', 'ingredient')
-        )]
-    )
+    author = UserSerializer(read_only=True)
+    ingredients = IngredientAmountSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
-        write_only=True
     )
     image = Base64ImageField(max_length=None, use_url=True)
     name = serializers.CharField(max_length=200, required=True)
     text = serializers.CharField(required=True)
     cooking_time = serializers.IntegerField(min_value=1, required=True)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         fields = (
-            'ingredients', 'tags', 'image', 'name', 'text', 'cooking_time'
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'is_favorited',
+            'is_in_shopping_cart',
+            'image',
+            'name',
+            'text',
+            'cooking_time'
         )
         model = Recipe
 
+    def get_fields(self):
+        """
+        Переопределяем метод get_fields для изменения порядка полей при выводе
+        """
+        fields = super().get_fields()
+        fields = OrderedDict([
+            ('id', fields['id']),
+            ('tags', fields['tags']),
+            ('author', fields['author']),
+            ('ingredients', fields['ingredients']),
+            ('is_favorited', fields['is_favorited']),
+            ('is_in_shopping_cart', fields['is_in_shopping_cart']),
+            ('image', fields['image']),
+            ('name', fields['name']),
+            ('text', fields['text']),
+            ('cooking_time', fields['cooking_time']),
+        ])
+        return fields
+
+    def get_is_favorited(self, obj):
+        """
+        Возвращает True, если рецепт добавлен в избранное текущим пользователем
+        """
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        return obj.favorites.filter(user=user).exists()
+
+    def get_is_in_shopping_cart(self, obj):
+        """
+        Возвращает True, если рецепт добавлен в список покупок текущим
+        пользователем
+        """
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        return obj.shopping_cart.filter(user=user).exists()
+
     def create(self, validated_data):
         """
-        Создает рецепт
+        Создать рецепт
         """
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
@@ -221,36 +278,49 @@ class RecipePostSerializer(serializers.ModelSerializer):
             author=self.context['request'].user,
             **validated_data
         )
+        recipe.tags.set(tags)
         for ingredient in ingredients:
             IngredientAmount.objects.create(
                 recipe=recipe,
-                **ingredient
+                ingredient=Ingredient.objects.get(id=ingredient['id']),
+                amount=ingredient['amount']
             )
-        recipe.tags.set(tags)
         return recipe
 
-    def update(self, instance, validated_data):
+    def to_representation(self, instance):
         """
-        Обновляет рецепт
+        Переопределение метода to_representation для добавления полей
+        ingredients и tags
+        Порядок полей в ответе:
+        id, tags, author, ingredients, is_favorited, is_in_shopping_cart,
+        name, image, text, cooking_time
         """
-        ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
-        instance.name = validated_data.get('name', instance.name)
-        instance.text = validated_data.get('text', instance.text)
-        instance.cooking_time = validated_data.get(
-            'cooking_time',
-            instance.cooking_time
-        )
-        instance.image = validated_data.get('image', instance.image)
-        instance.save()
-        for ingredient in ingredients:
-            IngredientAmount.objects.update_or_create(
-                recipe=instance,
-                ingredient=ingredient['ingredient'],
-                defaults={'amount': ingredient['amount']}
-            )
-        instance.tags.set(tags)
-        return instance
+
+        self.fields.pop('ingredients')
+        self.fields.pop('tags')
+        representation = super().to_representation(instance)
+        representation['id'] = instance.id
+
+        representation['ingredients'] = IngredientRecipeGetSerializer(
+            IngredientAmount.objects.filter(recipe=instance), many=True
+        ).data
+        representation['tags'] = TagSerializer(
+            instance.tags, many=True
+        ).data
+        # устанавливаем принудительно порядок полей согласно заданию
+        representation = OrderedDict([
+            ('id', representation['id']),
+            ('tags', representation['tags']),
+            ('author', representation['author']),
+            ('ingredients', representation['ingredients']),
+            ('is_favorited', representation['is_favorited']),
+            ('is_in_shopping_cart', representation['is_in_shopping_cart']),
+            ('image', representation['image']),
+            ('name', representation['name']),
+            ('text', representation['text']),
+            ('cooking_time', representation['cooking_time']),
+        ])
+        return representation
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
