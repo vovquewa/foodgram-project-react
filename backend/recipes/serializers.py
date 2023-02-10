@@ -172,14 +172,14 @@ class RecipePostSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели Recipe и методов отличных от GET
 
-    # Поля:
-    #     ingredients - ингредиенты рецепта
-    #         поля:
-    #             id - id ингредиента
-    #             amount - количество ингредиента
-    #     tags - теги рецепта
-    #         поля:
-    #             id - id тега
+    Поля:
+        ingredients - ингредиенты рецепта
+            поля:
+                id - id ингредиента
+                amount - количество ингредиента
+        tags - теги рецепта
+            поля:
+                id - id тега
         image - изображение рецепта закодированное в base64
         name - название рецепта
         text - описание рецепта
@@ -230,24 +230,78 @@ class RecipePostSerializer(serializers.ModelSerializer):
         )
         model = Recipe
 
-    def get_fields(self):
+# валидаторы
+    def validate(self, data):
         """
-        Переопределяем метод get_fields для изменения порядка полей при выводе
+        Проверка на наличие:
+            - ингредиентов
+            - тегов
+            - картинки
+            - названия
+            - времени приготовления
+        
+        Проверка на наличие тегов и ингредиентов в базе
         """
-        fields = super().get_fields()
-        fields = OrderedDict([
-            ('id', fields['id']),
-            ('tags', fields['tags']),
-            ('author', fields['author']),
-            ('ingredients', fields['ingredients']),
-            ('is_favorited', fields['is_favorited']),
-            ('is_in_shopping_cart', fields['is_in_shopping_cart']),
-            ('image', fields['image']),
-            ('name', fields['name']),
-            ('text', fields['text']),
-            ('cooking_time', fields['cooking_time']),
-        ])
-        return fields
+        if 'ingredients' not in data:
+            raise serializers.ValidationError(
+                'Необходимо указать ингредиенты'
+            )
+        if 'tags' not in data:
+            raise serializers.ValidationError(
+                'Необходимо указать теги'
+            )
+        if 'image' not in data:
+            raise serializers.ValidationError(
+                'Необходимо указать картинку'
+            )
+        if 'name' not in data:
+            raise serializers.ValidationError(
+                'Необходимо указать название'
+            )
+        if 'cooking_time' not in data:
+            raise serializers.ValidationError(
+                'Необходимо указать время приготовления'
+            )
+        if not Ingredient.objects.filter(
+            id__in=[ingredient['id'] for ingredient in data['ingredients']]
+        ).exists():
+            raise serializers.ValidationError(
+                'Ингредиенты не найдены'
+            )
+        if not Tag.objects.filter(
+            id__in=[tag.id for tag in data['tags']]
+        ).exists():
+            raise serializers.ValidationError(
+                'Теги не найдены'
+            )
+        return data
+
+    def validate_ingredients(self, value):
+        """
+        Нельзя добавить один и тот же ингридиент несколько раз
+        """
+        ingredients = []
+        for ingredient in value:
+            if ingredient['id'] in ingredients:
+                raise serializers.ValidationError(
+                    'Ингредиенты не должны повторяться'
+                )
+            ingredients.append(ingredient['id'])
+        return value
+
+    def validate_tags(self, value):
+        """
+        Нельзя добавить один и тот же тег несколько раз
+        """
+        tags = []
+        for tag in value:
+            if tag.id in tags:
+                raise serializers.ValidationError(
+                    'Теги не должны повторяться'
+                )
+            tags.append(tag.id)
+
+        return value
 
     def get_is_favorited(self, obj):
         """
@@ -287,10 +341,43 @@ class RecipePostSerializer(serializers.ModelSerializer):
             )
         return recipe
 
+    def update(self, instance, validated_data):
+        """
+        Обновить рецепт
+
+        Обязательные поля:
+        ingredients - ингредиенты
+            id - id ингредиента
+            amount - количество ингредиента
+        tags - теги (id тега)
+        image - изображение закодированное в base64
+        name - название рецепта
+        text - текст рецепта
+        cooking_time - время приготовления
+        """
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        instance.tags.set(tags)
+        instance.image = validated_data.get('image', instance.image)
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get(
+            'cooking_time', instance.cooking_time
+        )
+        instance.save()
+        for ingredient in ingredients:
+            IngredientAmount.objects.update_or_create(
+                recipe=instance,
+                ingredient=Ingredient.objects.get(id=ingredient['id']),
+                defaults={'amount': ingredient['amount']}
+            )
+        return instance
+
     def to_representation(self, instance):
         """
         Переопределение метода to_representation для добавления полей
         ingredients и tags
+
         Порядок полей в ответе:
         id, tags, author, ingredients, is_favorited, is_in_shopping_cart,
         name, image, text, cooking_time
@@ -307,7 +394,7 @@ class RecipePostSerializer(serializers.ModelSerializer):
         representation['tags'] = TagSerializer(
             instance.tags, many=True
         ).data
-        # устанавливаем принудительно порядок полей согласно заданию
+
         representation = OrderedDict([
             ('id', representation['id']),
             ('tags', representation['tags']),
