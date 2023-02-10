@@ -138,7 +138,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             Favorite.objects.get_or_create(user=user, recipe=recipe)
-            return Response(status=status.HTTP_201_CREATED)
+            return Response(
+                    {'success': 'Рецепт успешно добавлен в избранное'},
+                    status=status.HTTP_201_CREATED
+                )
         elif request.method == 'DELETE':
             if not Favorite.objects.filter(user=user, recipe=recipe).exists():
                 return Response(
@@ -146,7 +149,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             Favorite.objects.filter(user=user, recipe=recipe).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                    {'success': 'Рецепт успешно удален из избранного'},
+                    status=status.HTTP_204_NO_CONTENT
+                )
 
     # метод для добавление рецепта в список покупок
     @action(
