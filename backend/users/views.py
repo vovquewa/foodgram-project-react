@@ -1,17 +1,3 @@
-"""
-Вьюхи и вьюсеты для модели User
-
-Вьюсеты позволяют управлять поведением API, например, определять
-методы, которые будут доступны для каждого маршрута.
-
-Вьюсеты:
-    CustomUserViewSet - вьюсет для модели User
-"""
-
-
-
-from django.shortcuts import render
-from rest_framework import viewsets
 from .models import CustomUser, Subscribe
 from .serializers import UserSerializer
 from recipes.serializers import SubscribeSerializer

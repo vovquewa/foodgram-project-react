@@ -14,10 +14,10 @@
 
 """
 
-from django_filters import (FilterSet, CharFilter, BooleanFilter, NumberFilter,
+from django_filters import (FilterSet, NumberFilter,
                             ModelChoiceFilter, ModelMultipleChoiceFilter
                             )
-from .models import Recipe, Ingredient
+from .models import Recipe
 
 
 class RecipeFilter(FilterSet):
@@ -30,14 +30,14 @@ class RecipeFilter(FilterSet):
         Enum: 0 1
         Показывать только рецепты, находящиеся в списке избранного.
 
-    is_in_shopping_cart	
+    is_in_shopping_cart
         integer
         Enum: 0 1
         Показывать только рецепты, находящиеся в списке покупок.
-    author	
+    author
         integer
         Показывать рецепты только автора с указанным id.
-    tags	
+    tags
         Array of strings
         Example: tags=lunch&tags=breakfast
         Показывать рецепты только с указанными тегами (по slug)
@@ -50,7 +50,7 @@ class RecipeFilter(FilterSet):
         to_field_name='id',
         queryset=Recipe.objects.all()
     )
-    tags = ModelMultipleChoiceFilter(     
+    tags = ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',
         queryset=Recipe.objects.all()

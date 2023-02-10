@@ -20,10 +20,10 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from djoser.serializers import UserCreateSerializer as UCS
 from .models import Subscribe
+from rest_framework.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -75,7 +75,9 @@ class UserCreateSerializer(UCS):
 
     # Переопределяем метод для валидации поля password
     def validate_password(self, value):
-        """Валидация пароля"""
+        """
+        Валидация пароля
+        """
         try:
             validate_password(value)
         except ValidationError as err:

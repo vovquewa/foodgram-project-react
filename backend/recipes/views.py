@@ -1,28 +1,11 @@
-"""
-    Вьюхи и вьюсеты для приложения рецептов
-
-    Вьюхи:
-
-    Вьюсеты:
-        TagViewSet - вьюсет для модели Tag
-        RecipeViewSet - вьюсет для модели Recipe
-        IngredientViewSet - вьюсет для модели Ingredient
-    
-    perform это метод, который вызывается перед выполнением метода
-    action это декоратор, который позволяет создавать свои методы
-     
-"""
-
-from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
-
-# Create your views here.
-
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.filters import SearchFilter
 
-from .models import Tag, Recipe, Ingredient, Favorite, ShoppingList, IngredientAmount
+from .models import (
+    Tag, Recipe, Ingredient, Favorite, ShoppingList, IngredientAmount
+)
 from .serializers import (
     TagSerializer,
     RecipeGetSerializer,
@@ -34,12 +17,12 @@ from api.pagination import CustomPageNumberPagination
 from .filters import RecipeFilter
 
 # action decorator
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import action
 # get_object_or_404
 from rest_framework.generics import get_object_or_404
 # IsAuthenticated permission
 from rest_framework.permissions import IsAuthenticated
-from api.permissions import IsAuthorOrReadOnly, IsAuthor
+from api.permissions import IsAuthorOrReadOnly
 # Response
 from rest_framework.response import Response
 # status
@@ -50,8 +33,6 @@ from django.db.models import Sum
 from django.http import HttpResponse
 # ApiView
 from rest_framework.views import APIView
-# Counter
-from collections import Counter
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -164,8 +145,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """
         Добавление и удаление рецепта из списка покупок
 
-        POST /api/recipes/{id}/shopping_cart/ - добавление рецепта в список покупок
-        DELETE /api/recipes/{id}/shopping_cart/ - удаление рецепта из списка покупок
+        POST /api/recipes/{id}/shopping_cart/ - добавление рецепта в список
+        покупок
+        DELETE /api/recipes/{id}/shopping_cart/ - удаление рецепта из списка
+        покупок
 
         Возвращает статус 201 при успешном добавлении в список покупок
         Возвращает статус 204 при успешном удалении из списка покупок
@@ -188,7 +171,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             data = ShortRecipeSerializer(recipe).data
             return Response(data, status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE':
-            if not ShoppingList.objects.filter(user=user, recipe=recipe).exists():
+            if not ShoppingList.objects.filter(
+                user=user,
+                recipe=recipe
+            ).exists():
                 return Response(
                     {'error': 'Рецепта нет в списке покупок'},
                     status=status.HTTP_400_BAD_REQUEST
@@ -218,7 +204,10 @@ class DownloadShoppingCartView(APIView):
     Возвращает статус 400 при неверном запросе
         Когда список покупок пуст
 
-    декоратор @api_view(['GET']) - означает, что функция принимает только GET запросы и возвращает только ответы в формате json. Декоратор прописывается в url.py в urlpatterns в виде: path('download_shopping_cart/', download_shopping_cart, name='download_shopping_cart'),
+    декоратор @api_view(['GET']) - означает, что функция принимает только GET
+    запросы и возвращает только ответы в формате json. Декоратор прописывается
+    в url.py в urlpatterns в виде: path('download_shopping_cart/',
+    download_shopping_cart, name='download_shopping_cart'),
     """
 
     def get_permissions(self):
@@ -227,7 +216,8 @@ class DownloadShoppingCartView(APIView):
         только аутентифицированным пользователям
 
         Иначе будет ошибка:
-            AttributeError: 'AnonymousUser' object has no attribute 'is_authenticated'
+            AttributeError: 'AnonymousUser' object has no attribute
+            'is_authenticated'
 
         Разрешены методы только GET
         """
@@ -247,12 +237,17 @@ class DownloadShoppingCartView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         shopping_list = [
-            f'{item["ingredient__name"]} - {item["total_amount"]} {item["ingredient__measurement_unit"]}'
+            f'{item["ingredient__name"]} - {item["total_amount"]}' +
+            f' {item["ingredient__measurement_unit"]}'
             for item in shopping_list
         ]
         shopping_list = '\r'.join(shopping_list)
         response = HttpResponse(shopping_list, content_type='text/plain')
-        response['Content-Disposition'] = 'attachment; filename="shopping_list.txt"'
+        # response['Content-Disposition'] = 'attachment;
+        # filename="shopping_list.txt"'
+        response['Content-Disposition'] = (
+             'attachment; filename="shopping_list.txt"'
+        )
         return response
 
 

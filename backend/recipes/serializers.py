@@ -4,11 +4,11 @@
     Сериализаторы:
         TagSerializer - сериализатор для тегов
         RecipeGetSerializer - сериализатор для рецептов и метода GET
-        RecipePostSerializer - сериализатор для рецептов и методот отличных от GET
+        RecipePostSerializer - сериализатор для рецептов и методот отличных от
+        GET
         IngredientAmountSerializer - сериализатор для ингредиентов
         IngredientSerializer - сериализатор для ингредиентов
         FollowSerializer - сериализатор для подписок
-        
 """
 
 from rest_framework import serializers
@@ -19,8 +19,6 @@ from recipes.models import IngredientAmount
 from drf_extra_fields.fields import Base64ImageField
 # Валидатор UniqueTogetherValidator
 from rest_framework.validators import UniqueTogetherValidator
-# Paginator
-from rest_framework.pagination import PageNumberPagination as Paginator
 # OrderedDict
 from collections import OrderedDict
 
@@ -239,7 +237,6 @@ class RecipePostSerializer(serializers.ModelSerializer):
             - картинки
             - названия
             - времени приготовления
-        
         Проверка на наличие тегов и ингредиентов в базе
         """
         if 'ingredients' not in data:

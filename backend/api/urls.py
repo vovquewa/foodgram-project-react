@@ -1,24 +1,3 @@
-"""
-Описание маршрутов для API
-
-Все маршруты, которые начинаются с /api/ будут обрабатываться этим файлом.
-
-Версия 1:
-    /api/users/ - список пользователей
-    /api/users/<id> - детали пользователя
-    /api/auth/ - авторизация
-
-    /api/tags/ - список тегов
-    /api/tags/<id> - детали тега
-
-    /api/recipes/ - список рецептов
-    /api/recipes/<id> - детали рецепта
-
-    /api/ingredients/ - список ингредиентов
-    /api/ingredients/<id> - детали ингредиента
-
-"""
-
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from users.views import CustomUserViewSet
