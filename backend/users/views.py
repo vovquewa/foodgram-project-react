@@ -8,6 +8,7 @@
     CustomUserViewSet - вьюсет для модели User
 """
 
+
 from django.shortcuts import render
 from rest_framework import viewsets
 from .models import CustomUser, Subscribe
