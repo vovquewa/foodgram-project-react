@@ -136,3 +136,5 @@ media/
 
 # migrations
 migrations/
+
+.DS_Store
