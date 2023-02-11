@@ -135,7 +135,6 @@ dmypy.json
 media/
 
 # migrations
-migrations/
 
 .DS_Store
 **/.DS_Store

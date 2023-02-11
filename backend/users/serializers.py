@@ -80,7 +80,7 @@ class UserCreateSerializer(UCS):
         """
         try:
             validate_password(value)
-        except ValidationError as err:
+        except ValidationError:
             raise serializers.ValidationError(
                 _('Пароль не соответствует требованиям безопасности')
             )
