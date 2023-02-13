@@ -10,6 +10,15 @@ from .models import (
 )
 
 
+class IngredientInline(admin.TabularInline):
+    """
+    Ингридиенты в рецепте
+    """
+    model = IngredientAmount
+    min_num = 1
+    extra = 0
+
+
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
         'id',
@@ -27,6 +36,7 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'text', 'ingredients', 'tags')
     empty_value_display = settings.EMPTY_VALUE_DISPLAY
     ordering = ('-pub_date',)
+    inlines = [IngredientInline]
 
     def ingredients_custom(self, obj):
         return ", ".join([str(p) for p in obj.ingredients.all()])

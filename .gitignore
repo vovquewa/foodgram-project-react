@@ -138,3 +138,5 @@ media/
 
 .DS_Store
 **/.DS_Store
+
+backend_media/
