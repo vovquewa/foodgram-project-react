@@ -14,7 +14,7 @@ from .serializers import (
     ShortRecipeSerializer
 )
 from api.pagination import CustomPageNumberPagination
-from .filters import RecipeFilter
+from .filters import RecipeFilter, IngredientFilter
 
 # action decorator
 from rest_framework.decorators import action
@@ -52,6 +52,33 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
+
+    def get_queryset(self):
+        """
+        Переопределение метода get_queryset
+
+        Необходимо для того, чтобы возвращался список рецептов, с 
+        использования фильтров:
+        - author - id автора
+        - tags - список тегов (по slug)
+        - is_favorited - 1 - показывать только избранные рецепты
+        - is_in_shopping_cart - 1 - показывать только рецепты, которые
+        находятся в списке покупок
+
+        :return: QuerySet
+
+        """
+        queryset = super().get_queryset()
+        author = self.request.query_params.get('author')
+        tags = self.request.query_params.getlist('tags')
+
+        if author:
+            queryset = queryset.filter(author__id=author)
+            return queryset
+        if tags:
+            queryset = queryset.filter(tags__slug__in=tags)
+            return queryset
+        return queryset
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -259,5 +286,4 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
-    filter_backends = (SearchFilter,)
-    search_fields = ('^name',)
+    filterset_class = IngredientFilter
