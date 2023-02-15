@@ -33,7 +33,12 @@ class RecipeAdmin(admin.ModelAdmin):
         'pub_date',
     )
     list_filter = ('author', 'name', 'tags', 'pub_date')
-    search_fields = ('name', 'text', 'ingredients', 'tags')
+    search_fields = (
+        'name',
+        'text',
+        'ingredients__name',
+        'tags__name',
+    )
     empty_value_display = settings.EMPTY_VALUE_DISPLAY
     ordering = ('-pub_date',)
     inlines = [IngredientInline]
@@ -89,7 +94,7 @@ class IngredientAmountAdmin(admin.ModelAdmin):
         'amount',
     )
     list_filter = ('recipe', 'ingredient', 'amount')
-    search_fields = ('recipe', 'ingredient', 'amount')
+    search_fields = ('recipe__name', 'ingredient__name', 'amount')
     empty_value_display = settings.EMPTY_VALUE_DISPLAY
     ordering = ('recipe', '-id')
 
@@ -102,7 +107,7 @@ class FavoriteAdmin(admin.ModelAdmin):
         'recipe',
     )
     list_filter = ('user', 'recipe')
-    search_fields = ('user', 'recipe')
+    search_fields = ('user__username', 'recipe__name')
     empty_value_display = settings.EMPTY_VALUE_DISPLAY
     ordering = ('-id',)
     list_display_links = ('id', 'user', 'recipe')
@@ -116,7 +121,10 @@ class ShoppingListAdmin(admin.ModelAdmin):
         'recipe',
     )
     list_filter = ('user', 'recipe')
-    search_fields = ('user', 'recipe')
+    search_fields = (
+        'user__username',
+        'recipe__name',
+    )
     empty_value_display = settings.EMPTY_VALUE_DISPLAY
     ordering = ('-id',)
     list_display_links = ('id', 'user', 'recipe')
