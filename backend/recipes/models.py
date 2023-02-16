@@ -94,8 +94,7 @@ class Ingredient(models.Model):
     """Ингредиент"""
     name = models.CharField(
         verbose_name='Название ингредиента',
-        max_length=200,
-        unique=True
+        max_length=200
     )
 
     measurement_unit = models.CharField(
@@ -106,6 +105,12 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'measurement_unit'],
+                name='unique_ingredient'
+            )
+        ]
 
     def __str__(self):
         return self.name

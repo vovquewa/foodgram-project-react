@@ -86,7 +86,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # mysql база для отладки на локальной машине
 
-USE_LOCAL_DATABASE = False
+USE_LOCAL_DATABASE = True
 
 if USE_LOCAL_DATABASE:
     DATABASES = {
