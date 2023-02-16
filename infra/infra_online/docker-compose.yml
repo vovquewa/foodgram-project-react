@@ -3,12 +3,10 @@ services:
 
   frontend:
     container_name: frontend
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-    restart: always
+    image: vovque/infra-frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
+    restart: always
 
   nginx:
     container_name: nginx
@@ -21,10 +19,10 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static_value:/var/html/backend_static
       - media_value:/var/html/backend_media
-    restart: always
     depends_on:
       - web
       - frontend
+    restart: always
   
   db:
     container_name: db
