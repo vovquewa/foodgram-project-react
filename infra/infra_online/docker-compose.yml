@@ -56,3 +56,4 @@ volumes:
   media_value:
   postgres_data:
   result_build:
+  
