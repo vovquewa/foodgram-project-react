@@ -1,9 +1,10 @@
 # Foodgram
+Социальная сеть фудблоггеров. Есть возможность создавать рецепты, добавлять в избранное, формировать список покупок.
 
-## Workflow status
+## Статус Workflow
 ![Workflow status](https://github.com/vovquewa/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
-## Tecnhologies:
+## Техлист:
 - Python 3.10
 - Django 4.0
 - Django REST framework 3.13
@@ -36,5 +37,5 @@ DB_PORT=5432 # порт для подключения к БД
 DJANGO_SECRET_KEY=django-insecure-asmd,pasmfoep # секретный ключ джанги
 ```
 
-### *Backend by:*
+### Автор проекта
 [vovquewa](https://github.com/vovquewa)
