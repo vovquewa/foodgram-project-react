@@ -1,5 +1,8 @@
 # Foodgram
 
+## Workflow status
+![Workflow status](https://github.com/vovquewa/foodgram-project-react/actions/workflows/main.yml/badge.svg)
+
 ## Tecnhologies:
 - Python 3.10
 - Django 4.0
@@ -19,6 +22,9 @@ API doc: **http://ivovq.ru/api/redoc/**.
 
 
 ## .env
+
+**Замечание**
+Для docker-compose файла версии 3.5 файл .env не должен содержать комментариев
 
 ```.env
 DB_ENGINE=django.db.backends.postgresql # указываем, что работаем с postgresql
