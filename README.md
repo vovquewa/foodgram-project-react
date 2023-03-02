@@ -7,7 +7,7 @@
 
 
 ## Стек технологий
-[![My Tech Stack](https://github-readme-tech-stack.vercel.app/api/cards?showBorder=false&lineHeight=10&lineCount=1&hideBg=true&hideTitle=true&line1=react,react,6915d0;docker,docker,d73118;python,python%203.10,ab3bcc;django,Django%204.0,29dcc3;django,DRF%203.13,c17c9d;nginx,nginx,bf8682;PostgreSQL,PostgreSQL,6e4d66;)](https://github-readme-tech-stack.vercel.app/api/cards?showBorder=false&lineHeight=10&lineCount=1&hideBg=true&hideTitle=true&line1=react,react,6915d0;docker,docker,d73118;python,python%203.10,ab3bcc;django,Django%204.0,29dcc3;django,DRF%203.13,c17c9d;nginx,nginx,bf8682;PostgreSQL,PostgreSQL,6e4d66;)
+[![My Tech Stack](https://github-readme-tech-stack.vercel.app/api/cards?title=&lineCount=2&line1=react,react,5f34a6;django,django,34d582;django,drf,01ac74;postgresql,postgresql,3e8d8a;&line2=python,python%203.10,505f68;nginx,nginx,924fc9;docker,docker,b0e078;)](https://github-readme-tech-stack.vercel.app/api/cards?title=&lineCount=2&line1=react,react,5f34a6;django,django,34d582;django,drf,01ac74;postgresql,postgresql,3e8d8a;&line2=python,python%203.10,505f68;nginx,nginx,924fc9;docker,docker,b0e078;)
 
 ## Реквизиты проекта
 
