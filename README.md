@@ -1,11 +1,13 @@
-[![Стек технологий](https://github-readme-tech-stack.vercel.app/api/cards?lineCount=1&line1=react,react,6915d0;docker,docker,d73118;python,python%203.10,ab3bcc;django,Django%204.0,29dcc3;django,DRF%203.13,c17c9d;nginx,nginx,bf8682;PostgreSQL,PostgreSQL,6e4d66;)](https://github-readme-tech-stack.vercel.app/api/cards?lineCount=1&line1=react,react,6915d0;docker,docker,d73118;python,python%203.10,ab3bcc;django,Django%204.0,29dcc3;django,DRF%203.13,c17c9d;nginx,nginx,bf8682;PostgreSQL,PostgreSQL,6e4d66;)
-
-![Workflow status](https://github.com/vovquewa/foodgram-project-react/actions/workflows/main.yml/badge.svg)
-
-
 # Foodgram
 Социальная сеть фудблоггеров. Есть возможность создавать рецепты, добавлять в избранное, формировать список покупок.
 
+
+## Статус workflow
+![Workflow status](https://github.com/vovquewa/foodgram-project-react/actions/workflows/main.yml/badge.svg)
+
+
+## Стек технологий
+[![My Tech Stack](https://github-readme-tech-stack.vercel.app/api/cards?showBorder=false&lineHeight=10&lineCount=1&hideBg=true&hideTitle=true&line1=react,react,6915d0;docker,docker,d73118;python,python%203.10,ab3bcc;django,Django%204.0,29dcc3;django,DRF%203.13,c17c9d;nginx,nginx,bf8682;PostgreSQL,PostgreSQL,6e4d66;)](https://github-readme-tech-stack.vercel.app/api/cards?showBorder=false&lineHeight=10&lineCount=1&hideBg=true&hideTitle=true&line1=react,react,6915d0;docker,docker,d73118;python,python%203.10,ab3bcc;django,Django%204.0,29dcc3;django,DRF%203.13,c17c9d;nginx,nginx,bf8682;PostgreSQL,PostgreSQL,6e4d66;)
 
 ## Реквизиты проекта
 
